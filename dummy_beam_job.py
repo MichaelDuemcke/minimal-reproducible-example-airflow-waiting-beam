@@ -43,8 +43,7 @@ def run(argv=None):
         SleepBeamDoFn(known_args.sleep)
     )
 
-    result = p.run()
-    result.wait_until_finish()
+    run()
 
 
 if __name__ == "__main__":
