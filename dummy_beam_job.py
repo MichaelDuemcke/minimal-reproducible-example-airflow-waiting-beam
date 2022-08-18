@@ -9,8 +9,7 @@ from apache_beam.options.pipeline_options import PipelineOptions, SetupOptions
 
 
 class SleepBeamDoFn(beam.DoFn):
-    def __init__(self, sleep, *unused_args, **unused_kwargs):
-        super().__init__(*unused_args, **unused_kwargs)
+    def __init__(self, sleep):
         self.sleep = sleep
 
     def to_runner_api_parameter(self, unused_context):

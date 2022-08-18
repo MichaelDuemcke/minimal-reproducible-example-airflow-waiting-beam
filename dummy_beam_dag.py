@@ -14,36 +14,25 @@ from airflow.providers.google.cloud.sensors.dataflow import (
     DataflowJobStatusSensor,
 )
 
-DAG_ID = "dag-submit-and-wait-for-beam-job-completion"
-env = os.environ.get("AIRFLOW_VAR_ENV")
-
-default_args = {
-    "owner": "airflow",
-    "start_date": datetime(2022, 4, 2),
-    "end_date": datetime(2022, 4, 3),
-    "depends_on_past": False,
-}
-
 SERVICE_ACCOUNT = os.environ.get("AIRFLOW_VAR_SERVICE_ACCOUNT")
-GCP_PROJECT_ID = "umg-de"
+GCP_PROJECT_ID = os.environ.get("GCP_PROJECT_ID")
 
 with DAG(
-        dag_id=DAG_ID,
-        default_args=default_args,
+        dag_id="dag-submit-and-wait-for-beam-job-completion",
+        default_args={
+            "owner": "airflow",
+            "start_date": datetime(2022, 4, 2),
+            "end_date": datetime(2022, 4, 3),
+        },
         schedule_interval="@once",
-        max_active_runs=12,
-        catchup=True,
+        catchup=True
 ) as dag:
     start = DummyOperator(task_id="start")
     end = DummyOperator(task_id="end")
 
     submit_beam_job = BeamRunPythonPipelineOperator(
         task_id="submit_beam_job",
-        py_file=os.path.join(
-            "src",
-            "dag_submit_and_wait_for_beam_job_completion",
-            "dummy_beam_job.py",
-        ),
+        py_file=os.path.join("dummy_beam_job.py"),
         runner="DataflowRunner",
         pipeline_options={
             "sleep": 120,
@@ -53,7 +42,7 @@ with DAG(
             "num_workers": "1",
         },
         dataflow_config=DataflowConfiguration(
-            job_name=f"{env}_sleeping_beam_job",
+            job_name=f"sleeping_beam_job",
             project_id=GCP_PROJECT_ID,
             location="us-central1",
             wait_until_finished=False,
